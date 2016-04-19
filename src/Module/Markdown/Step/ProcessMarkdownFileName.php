@@ -52,7 +52,7 @@ class ProcessMarkdownFileName implements Step
             return;
         }
 
-        $file->relativeFilename = $file->getDirectory().strtolower($basename);
+        $file->relativeFilename = $file->getDirectory().$basename;
     }
 
     private function replaceExtension($filename)

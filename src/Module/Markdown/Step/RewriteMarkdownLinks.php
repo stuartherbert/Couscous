@@ -35,9 +35,9 @@ class RewriteMarkdownLinks implements Step
 
     private function replaceFilename(array $matches)
     {
-        $filename = strtolower($matches[2]);
+        $filename = $matches[2];
         $filename = str_replace('.md', '.html', $filename);
-        if ($filename == 'readme.html') {
+        if ($filename == 'README.html') {
             $filename = 'index.html';
         }
 
