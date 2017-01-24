@@ -32,6 +32,7 @@ return [
         DI\get('Couscous\Module\Markdown\Step\CreateHeadingIds'),
 
         DI\get('Couscous\Module\Template\Step\AddPageListToLayoutVariables'),
+        DI\get('Couscous\Module\Template\Step\AddNavMetadataToPage'),
         DI\get('Couscous\Module\Template\Step\ProcessTwigLayouts'),
 
         DI\get('Couscous\Module\Template\Step\AddLivereloadSnippet'),
