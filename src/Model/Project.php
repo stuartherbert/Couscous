@@ -131,4 +131,18 @@ class Project
 
         return $finder;
     }
+
+    public function includedDirectories()
+    {
+        $includedDirectories = $this->metadata['include'] ? $this->metadata['include'] : [];
+
+        // To be sure that included directories are under the source one
+        if (!empty($includedDirectories)) {
+            array_walk($includedDirectories, function (&$item) {
+                $item = $this->sourceDirectory.'/'.$item;
+            });
+        }
+
+        return $includedDirectories;
+    }
 }

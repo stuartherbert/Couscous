@@ -25,8 +25,6 @@ class ProcessTwigLayouts implements Step
             return;
         }
 
-        $twig = $this->createTwig($project->metadata['template.directory']);
-
         /** @var HtmlFile[] $htmlFiles */
         $htmlFiles = $project->findFilesByType('Couscous\Module\Template\Model\HtmlFile');
 
@@ -38,12 +36,17 @@ class ProcessTwigLayouts implements Step
 
             $context = array_merge(
                 $project->metadata->toArray(),
-                $fileMetadata->toArray(),
-                ['content' => $file->content]
+                $fileMetadata->toArray()
+            );
+
+            $twig = $this->createTwig(
+                $project->metadata['template.directory'],
+                $project->includedDirectories(),
+                $this->prepareContent($layout, $file->content)
             );
 
             try {
-                $file->content = $twig->render($layout, $context);
+                $file->content = $twig->render('__content__.html', $context);
             } catch (\Exception $e) {
                 throw new \RuntimeException(sprintf(
                     'There was an error while rendering the file "%s" with the layout "%s": %s',
@@ -55,9 +58,9 @@ class ProcessTwigLayouts implements Step
         }
     }
 
-    private function createTwig($templateDirectory)
+    private function createTwig($templateDirectory, $sourceDirectories, $content)
     {
-        $loader = $this->createLoader($templateDirectory);
+        $loader = $this->createLoader($templateDirectory, $sourceDirectories, $content);
 
         return new Twig_Environment($loader, [
             'cache'       => false,
@@ -74,7 +77,7 @@ class ProcessTwigLayouts implements Step
      *
      * @return Twig_Loader_Array
      */
-    private function createLoader($templateDirectory)
+    private function createLoader($templateDirectory, $includedDirectories, $content)
     {
         $finder = new Finder();
         $finder->files()
@@ -88,6 +91,58 @@ class ProcessTwigLayouts implements Step
             $layouts[$name] = $file->getContents();
         }
 
+        // add in any Twig templates from our source
+        foreach ($includedDirectories as $includedDirectory) {
+            $finder = new Finder();
+            $finder->files()
+                ->in($includedDirectory)
+                ->ignoreDotFiles(false)
+                ->name('*.twig');
+
+            foreach ($finder as $file) {
+                $name = $file->getRelativePathname();
+                $layouts[$name] = trim($file->getContents());
+            }
+        }
+
+        // add in our dynamic content
+        $layouts['__content__.html'] = $content;
+
         return new Twig_Loader_Array($layouts);
+    }
+
+    private function prepareContent($layout, $content)
+    {
+        // we have to unescape double-quotes used inside Twig blocks
+        //
+        // yes, this is nasty. it's designed to reverse the double-quotes
+        // only inside Twig sections
+        //
+        // if you've got a better way, I'm all ears :)
+        $lastContent = null;
+
+        while ($lastContent !== $content) {
+            $lastContent = $content;
+            $content = preg_replace(
+                "/{%(.*)&quot;(.*)%}/",
+                '{%\1"\2%}',
+                $content
+            );
+        }
+
+        $lastContent = null;
+
+        while ($lastContent !== $content) {
+            $lastContent = $content;
+            $content = preg_replace(
+                "/{{(.*)&quot;(.*)}}/",
+                '{{\1"\2}}',
+                $content
+            );
+        }
+
+        $content = '{% extends "' . $layout . '" %}{% block content %}' . $content . '{% endblock %}';
+
+        return $content;
     }
 }
