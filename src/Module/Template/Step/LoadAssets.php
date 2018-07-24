@@ -40,7 +40,8 @@ class LoadAssets implements Step
             ->ignoreDotFiles(false)
             ->notName('*.twig')
             ->notName('*.md')
-            ->notName('couscous.yml');
+            ->notName('couscous.yml')
+            ->notName('*.scss');
 
         $project->watchlist->watchFiles($files);
 

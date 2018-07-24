@@ -64,6 +64,7 @@ class Project
     public function addFile(File $file)
     {
         $this->files[$file->relativeFilename] = $file;
+        echo "Added file {$file->relativeFilename} to project" . PHP_EOL;
     }
 
     public function removeFile(File $file)

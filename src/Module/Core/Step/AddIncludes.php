@@ -11,10 +11,10 @@ use Couscous\Step;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class AddImages implements Step
+class AddIncludes implements Step
 {
     /**
-     * Add images to the given project.
+     * Add assets to the given project.
      *
      * @param Project $project
      */
@@ -22,9 +22,8 @@ class AddImages implements Step
     {
         $files = $project->sourceFiles();
         $files
-            ->name('*.gif')
-            ->name('*.png')
-            ->name('*.jpg');
+            ->ignoreDotFiles(true)
+            ->notName('*.md');
 
         $project->watchlist->watchFiles($files);
 
