@@ -29,6 +29,15 @@ class ProcessTwigLayouts implements Step
         $htmlFiles = $project->findFilesByType('Couscous\Module\Template\Model\HtmlFile');
 
         foreach ($htmlFiles as $file) {
+            // special case - we need to inject '{% verbatim %}' tags to stop
+            // Twig thinking that <code> and <pre> blocks contain variables
+            $contents = $file->content;
+
+            $contents = preg_replace("|<code>|", "<code>{% verbatim %}", $contents);
+            $contents = preg_replace("|</code>(?!\</pre)|", "{% endverbatim %}</code>", $contents);
+            $contents = preg_replace("|<pre>(?!\<code>)|", "<pre>{% verbatim %}", $contents);
+            $contents = preg_replace("|</pre>|", "{% endverbatim %}</pre>", $contents);
+
             $fileMetadata = $file->getMetadata();
             $layout = isset($fileMetadata['layout'])
                 ? $fileMetadata['layout'].'.twig'
@@ -42,7 +51,7 @@ class ProcessTwigLayouts implements Step
             $twig = $this->createTwig(
                 $project->metadata['template.directory'],
                 $project->includedDirectories(),
-                $this->prepareContent($layout, $file->content)
+                $this->prepareContent($layout, $contents)
             );
 
             try {
