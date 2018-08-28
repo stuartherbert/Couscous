@@ -91,7 +91,8 @@ class ProcessTwigLayouts implements Step
         $finder = new Finder();
         $finder->files()
             ->in($templateDirectory)
-            ->name('*.twig');
+            ->name('*.twig')
+            ->followLinks();
 
         $layouts = [];
         foreach ($finder as $file) {
@@ -106,7 +107,8 @@ class ProcessTwigLayouts implements Step
             $finder->files()
                 ->in($includedDirectory)
                 ->ignoreDotFiles(false)
-                ->name('*.twig');
+                ->name('*.twig')
+                ->followLinks();
 
             foreach ($finder as $file) {
                 $name = $file->getRelativePathname();

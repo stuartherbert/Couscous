@@ -87,7 +87,8 @@ class RenderMarkdown implements Step
         $finder = new Finder();
         $finder->files()
             ->in($templateDirectory)
-            ->name('*.twig');
+            ->name('*.twig')
+            ->followLinks();
 
         $layouts = [];
         foreach ($finder as $file) {
@@ -102,7 +103,8 @@ class RenderMarkdown implements Step
             $finder->files()
                 ->in($includedDirectory)
                 ->ignoreDotFiles(false)
-                ->name('*');
+                ->name('*.md')
+                ->followLinks();
 
             foreach ($finder as $file) {
                 $name = $file->getRelativePathname();
