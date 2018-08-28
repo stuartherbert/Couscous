@@ -94,7 +94,13 @@ class PreviewCommand extends Command
             $this->startLivereload($input->getOption('livereload'), $output, $sourceDirectory, $targetDirectory);
         }
 
-        $watchlist = $this->generateWebsite($output, $sourceDirectory, $targetDirectory);
+        try {
+            $watchlist = $this->generateWebsite($output, $sourceDirectory, $targetDirectory);
+        }
+        catch (\Exception $e) {
+            echo $e->getTraceAsString() . PHP_EOL;
+            throw $e;
+        }
 
         $serverProcess = $this->startWebServer($input, $output, $targetDirectory);
 
