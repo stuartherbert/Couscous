@@ -103,7 +103,7 @@ class RenderMarkdown implements Step
             $finder->files()
                 ->in($includedDirectory)
                 ->ignoreDotFiles(false)
-                ->name('*.md')
+                ->name('/.md$|.twig$/')
                 ->followLinks();
 
             foreach ($finder as $file) {
