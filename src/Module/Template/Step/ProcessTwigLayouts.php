@@ -33,10 +33,10 @@ class ProcessTwigLayouts implements Step
             // Twig thinking that <code> and <pre> blocks contain variables
             $contents = $file->content;
 
-            $contents = preg_replace("|<code>|", "<code>{% verbatim %}", $contents);
-            $contents = preg_replace("|</code>(?!\</pre)|", "{% endverbatim %}</code>", $contents);
-            $contents = preg_replace("|<pre>(?!\<code>)|", "<pre>{% verbatim %}", $contents);
-            $contents = preg_replace("|</pre>|", "{% endverbatim %}</pre>", $contents);
+            $contents = preg_replace("|<code>(.*)</code>(?!\</pre)|Um", "<code>{% verbatim %}\\1{% endverbatim %}</code>", $contents);
+            // $contents = preg_replace("|</code>(?!\</pre)|", "{% endverbatim %}</code>", $contents);
+            $contents = preg_replace("|<pre>(?!\<code>)(.*)</pre>|Um", "<pre>{% verbatim %}\\1{% endverbatim %}</pre>", $contents);
+            // $contents = preg_replace("|</pre>|", "{% endverbatim %}</pre>", $contents);
 
             $fileMetadata = $file->getMetadata();
             $layout = isset($fileMetadata['layout'])
